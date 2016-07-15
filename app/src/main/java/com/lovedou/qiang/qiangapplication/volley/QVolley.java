@@ -3,11 +3,7 @@ package com.lovedou.qiang.qiangapplication.volley;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.net.http.AndroidHttpClient;
 import android.os.Build;
-import android.util.LruCache;
-import android.widget.ImageView;
 
 import com.android.volley.Network;
 import com.android.volley.Request;
@@ -17,87 +13,49 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpClientStack;
 import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.Volley;
 
 import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
- * Created by Qiang on 2016/7/14.
+ * Created by Qiang on 2016/7/15.
  */
-public class QVolley {
+public class  QVolley {
 
-    /**
-     * 缓存大小，单位（M），默认为50M
-     */
-    private static int CacheSize = 50;
-    /**
-     * 默认标记
-     */
-    private final static String TAG = "JVolley";
+    private static final String TAG="QVolley";
+    private static QVolley instance;
+    private Context context;
+    private RequestQueue requestQueue;
+
     /**
      * 默认缓存目录为tag
      */
-    private static String DEFAULT_CACHE_DIR = TAG;
+    private static final String DEFAULT_CACHE_DIR = TAG;
 
-    private static QVolley qVolley;
-    private static Context jcontext;
-    private ImageLoader imageLoader;
-    private RequestQueue jrequestQueue;
 
-    private ArrayList<JAsyncPost> jAsyncPosts;
-    private static ExecutorService executorService;
-
-    /**
-     * 主构造
-     *
-     * @param context
-     */
-    public QVolley(Context context) {
-        jcontext = context;
-        this.jrequestQueue = getRequestQueue();
-
-        jAsyncPosts = new ArrayList<JAsyncPost>();
-        executorService = Executors.newCachedThreadPool();
-        imageLoader = new ImageLoader(jrequestQueue, new BitmapCache());
+    private QVolley(Context context){
+        this.context=context.getApplicationContext();
+        requestQueue= Volley.newRequestQueue(this.context);
     }
 
-    /**
-     * 同步获取一个实例
-     *
-     * @param context
-     * @return
-     */
-    public static synchronized QVolley getInstance(Context context) {
-        if (null == qVolley) {
-            qVolley = new QVolley(context);
+    public QVolley getInstance( Context context) {
+        if(context==null){
+            throw new IllegalArgumentException("Context can not be null! ");
         }
-        return qVolley;
-    }
-
-    /**
-     * 得到一个关联全局应用上下文的requestqueue
-     *
-     * @return 返回一个requestqueue
-     */
-    public RequestQueue getRequestQueue() {
-        if (null == jrequestQueue) {
-            jrequestQueue = qVolley.newRequestQueue(jcontext
-                    .getApplicationContext());
+        if(instance==null){
+            synchronized (QVolley.class){
+                if(instance==null){
+                    instance=new QVolley(context);
+                }
+            }
         }
-        return jrequestQueue;
+        return instance;
     }
 
-    /**
-     * 设置缓存大小，默认为50M
-     *
-     * @param cacheSize
-     *            缓存大小
-     */
-    public static void setCacheSize(int cacheSize) {
-        CacheSize = cacheSize;
+    public RequestQueue getRequestQueue(){
+        return requestQueue;
     }
+
 
     /**
      * 将请求添加到队列中
@@ -112,60 +70,13 @@ public class QVolley {
     }
 
     /**
-     * 将请求添加到队列中
-     *
-     */
-    public <T> void addToAsyncQueue(JAsyncPost jAsyncPost, String tag) {
-        // 如果tag为空，则添加默认标记
-        jAsyncPost.setTag(null == tag || "".equals(tag) ? TAG : tag);
-        // 添加到消息队列中
-        jAsyncPosts.add(jAsyncPost);
-        // 执行方法
-        jAsyncPost.executeOnExecutor(executorService, "");
-    }
-
-    /**
      * 通过tag取消队列中的请求
      *
      * @param tag
      *            消息标记
      */
     public void cancelFromRequestQueue(String tag) {
-        for (int i = 0; i < jAsyncPosts.size(); i++) {
-            if (tag.equals(jAsyncPosts.get(i).getTag())) {
-                jAsyncPosts.get(i).cancel(true);
-                jAsyncPosts.remove(i);
-            }
-        }
         getRequestQueue().cancelAll(null == tag ? TAG : tag);
-    }
-
-    /**
-     * 加载图片
-     *
-     * @param imgUrl
-     *            图片地址
-     * @param imageView
-     *            图片容器
-     * @param defaultImageResId
-     *            默认图id
-     * @param errorImageResId
-     *            图片加载失败的图片id
-     */
-    @SuppressWarnings("static-access")
-    public void LoadImage(String imgUrl, ImageView imageView,
-                          int defaultImageResId, int errorImageResId) {
-        imageLoader.get(imgUrl, imageLoader.getImageListener(imageView,
-                defaultImageResId, errorImageResId));
-    }
-
-    /**
-     * 获得imageloader实例
-     *
-     * @return imageloader实例
-     */
-    public ImageLoader getImageLoader() {
-        return imageLoader;
     }
 
     /**
@@ -176,10 +87,9 @@ public class QVolley {
      * @param stack
      *            网络类型
      * @return 队列
-     */
+
     public static RequestQueue newRequestQueue(Context context, HttpStack stack) {
-        File cacheDir = new File(context.getCacheDir(),
-                "".equals(DEFAULT_CACHE_DIR) || null == DEFAULT_CACHE_DIR ? TAG
+        File cacheDir = new File(context.getCacheDir(), "".equals(DEFAULT_CACHE_DIR) || null == DEFAULT_CACHE_DIR ? TAG
                         : DEFAULT_CACHE_DIR);
 
         String userAgent = "volley/0";
@@ -209,48 +119,12 @@ public class QVolley {
                 network);
         queue.start();
         return queue;
-    }
+    } */
 
-    /**
-     * Creates a default instance of the worker pool and calls
-     * {@link RequestQueue#start()} on it.
-     *
-     * @param context
-     *            A {@link Context} to use for creating the cache dir.
-     * @return A started {@link RequestQueue} instance.
-     */
-    public static RequestQueue newRequestQueue(Context context) {
-        return newRequestQueue(context, null);
-    }
 
-    /**
-     * 图片缓存
-     *
-     * @author "JTech"
-     *
-     */
-    class BitmapCache implements ImageLoader.ImageCache {
-        private LruCache<String, Bitmap> cache;
 
-        public BitmapCache() {
-            int maxSize = (CacheSize > 0 ? CacheSize : 50) * 1024 * 1024;
-            cache = new LruCache<String, Bitmap>(maxSize) {
-                @Override
-                protected int sizeOf(String key, Bitmap value) {
-                    return value.getRowBytes() * value.getHeight();
-                }
-            };
-        }
-
-        @Override
-        public Bitmap getBitmap(String url) {
-            return cache.get(url);
-        }
-
-        @Override
-        public void putBitmap(String url, Bitmap bitmap) {
-            cache.put(url, bitmap);
-        }
+    public void destroy(){
+        requestQueue=null;
     }
 
 }

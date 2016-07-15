@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Qiang on 2016/7/13.
+ *
  */
 public abstract class TableInfo {
 
