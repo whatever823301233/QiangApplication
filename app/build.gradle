@@ -22,6 +22,9 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile files('libs/zip4j_1.3.1.jar')
+    compile project(path: ':android-volley-master')
+    compile files('libs/gson-2.7.jar')
 }
