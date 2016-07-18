@@ -18,7 +18,6 @@ public class TimeUtil {
      * 返回当前时间
      * @return
      *String hh:mm:ss yyyy年MM月dd日
-     * @permission
      *String
      * @since  1.0.0
      */
@@ -33,11 +32,9 @@ public class TimeUtil {
      * 比较现在时间是不是在给定的时间段里。 比如时间"201407221445"
      * @param timeStart	起始时间
      * @param timeEnd	终止时间
-     * @return
-     * @permission
      *boolean
-     * @exception
      * @since  1.0.0
+     * @return boolean
      */
     public boolean betweenTheTimeMinu(String timeStart, String timeEnd) {
         SimpleDateFormat Fmt1 = new SimpleDateFormat("yyyyMMddHHmm");
@@ -56,8 +53,7 @@ public class TimeUtil {
             }
 
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LogUtil.e("",e);
             return false;
         }
     }

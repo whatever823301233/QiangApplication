@@ -106,9 +106,7 @@ public class Utility {
 
     public static void startActivityForResult(Activity ctx, Intent intent, int requestCode ) {
 
-        if( ctx == null || intent == null ) {
-            return;
-        } else {
+        if (ctx != null && intent != null) {
             try {
                 ctx.startActivityForResult( intent, requestCode );
             } catch( ActivityNotFoundException e ) {
@@ -125,8 +123,6 @@ public class Utility {
      * @param inSampleSize
      *            目标参数
      * @return int 整数次幂
-     * @exception
-     * @permission
      * @since 1.0.0
      */
     public static int computeSampleSize( int inSampleSize ) {
@@ -178,11 +174,7 @@ public class Utility {
             packageInfo = null;
             LogUtil.e( TAG, e.getMessage(), e );
         }
-        if( packageInfo == null ) {
-            return false;
-        } else {
-            return true;
-        }
+        return packageInfo != null;
     }
 
 

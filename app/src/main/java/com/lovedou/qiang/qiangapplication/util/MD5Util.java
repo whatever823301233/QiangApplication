@@ -104,7 +104,6 @@ public class MD5Util {
      * @param b	待转换数据
      * @return
      *String  16进制数据
-     * @exception
      * @since  1.0.0
      */
     private static String toHexString( byte[] b ) {

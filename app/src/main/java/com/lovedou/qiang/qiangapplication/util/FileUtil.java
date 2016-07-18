@@ -33,7 +33,6 @@ public class FileUtil {
      * @param name
      *            读取文件名
      * @return String 读取信息
-     * @exception
      * @since 1.0.0
      */
     public static String readAssetsFile(Context context, String name ) {
@@ -67,7 +66,6 @@ public class FileUtil {
      * @param bitmap
      *            图片对象
      * @return String 操作信息状态
-     * @exception
      * @since 1.0.0
      */
     public static String saveToAlbum( Context ctx, Bitmap bitmap ) {

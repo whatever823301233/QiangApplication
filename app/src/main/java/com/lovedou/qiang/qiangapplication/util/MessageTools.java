@@ -265,9 +265,7 @@ public class MessageTools {
      * showThreeBtnDialog(3个按钮btn)
      *
      * @param ctx
-     * @param message
-     *            void
-     * @exception
+     * @param message void
      * @since 1.0.0
      */
     public static void showThreeBtnDialog( final Context ctx, String message, final String pageName ) {
@@ -288,7 +286,6 @@ public class MessageTools {
             @Override
             public void onClick( DialogInterface dialog, int which ) {
 
-                // TODO Auto-generated method stub
                 PackageManager packageManager = ctx.getPackageManager();
                 Intent intent = new Intent();
                 intent = packageManager.getLaunchIntentForPackage( pageName );
@@ -304,7 +301,6 @@ public class MessageTools {
             @Override
             public void onClick( DialogInterface dialog, int which ) {
 
-                // TODO Auto-generated method stub
                 dialog.dismiss();
 
             }
@@ -323,7 +319,6 @@ public class MessageTools {
      * @param ctx
      * @param onClickListener
      *            void
-     * @exception
      * @since 1.0.0
      */
     public static void showReCommendDialog( final Context ctx, String conformBtn, String message,

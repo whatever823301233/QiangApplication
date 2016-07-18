@@ -67,7 +67,6 @@ public class ProgressBarManager {
      *
      * 关闭进度条 
      * @param sn
-     * @exception   Exception
      * @since  1.0.0
      */
     private synchronized static void dismissProgressBar( int sn ) {
@@ -97,7 +96,6 @@ public class ProgressBarManager {
     /**
      *	关闭进度条
      *
-     * @exception
      * @since 1.0.0
      */
     public synchronized static void dismissProgressBar() {
@@ -120,7 +118,6 @@ public class ProgressBarManager {
     /**
      * 释放ProgressBarManager持有的窗体ctx
      *
-     * @exception
      * @since 1.0.0
      */
     public synchronized static void releaseCtx() {
@@ -137,7 +134,6 @@ public class ProgressBarManager {
      *            进度条显示的文本，缺省“正在加载,请稍候......”
      * @param isCancelable
      *            是否可以取消
-     * @exception	Exception
      * @since 1.0.0
      */
     public synchronized static void loadWaitPanelAutoClose( Context ctx, String message, boolean isCancelable,
@@ -186,7 +182,6 @@ public class ProgressBarManager {
      *            进度条显示的文本，缺省“正在加载,请稍候......”
      * @param isCancelable
      *            是否可以取消
-     * @exception	Exception
      * @since 1.0.0
      */
     public synchronized static void loadWaitPanel( Context ctx, String message, boolean isCancelable ) {
@@ -205,7 +200,6 @@ public class ProgressBarManager {
      *
      * 加载进度条  
      * @param ctx   Context对象 
-     * @exception   Exception
      * @since  1.0.0
      */
     public synchronized static void loadWaitPanel( Context ctx ) {

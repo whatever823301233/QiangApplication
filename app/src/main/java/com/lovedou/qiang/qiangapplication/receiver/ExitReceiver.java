@@ -14,7 +14,6 @@ public class ExitReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
         AppManager.getInstance( context ).exitApp();
     }
 }

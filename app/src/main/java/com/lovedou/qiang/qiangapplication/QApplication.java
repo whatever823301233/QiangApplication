@@ -17,10 +17,10 @@ public class QApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        instance=this;
         if(isSameAppName()){
             return;
         }
+        instance=this;
 
     }
 

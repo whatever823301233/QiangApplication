@@ -24,7 +24,6 @@ public class StringUtil {
      * @param str	待格式化字符串
      * @return
      *String  格式化后字符串
-     * @exception   ParseException
      * @since  1.0.0
      */
     public static String parseFormatStr( String str ) {
@@ -45,7 +44,6 @@ public class StringUtil {
      * @param df	自定义格式
      * @return
      *String  格式化后字符串
-     * @exception   ParseException
      * @since  1.0.0
      */
     public static String parseFormatStr( String str, DecimalFormat df ) {
@@ -87,7 +85,6 @@ public class StringUtil {
      * @param s	待处理字符串
      * @return
      *String  处理后字符串
-     * @exception
      * @since  1.0.0
      */
     public static String subZeroAndDot( String s ) {
@@ -106,7 +103,6 @@ public class StringUtil {
      * @param s	待转化字符串
      * @return
      *int  转化后字符串
-     * @exception   Exception
      * @since  1.0.0
      */
     public static int string2Int( String s ) {

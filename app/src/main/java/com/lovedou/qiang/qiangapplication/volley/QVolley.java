@@ -1,24 +1,22 @@
 package com.lovedou.qiang.qiangapplication.volley;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
+import android.text.TextUtils;
+import android.widget.ImageView;
 
-import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HttpClientStack;
-import com.android.volley.toolbox.HttpStack;
-import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
+import com.lovedou.qiang.qiangapplication.util.BitmapCache;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Qiang on 2016/7/15.
+ *
  */
 public class  QVolley {
 
@@ -26,19 +24,20 @@ public class  QVolley {
     private static QVolley instance;
     private Context context;
     private RequestQueue requestQueue;
-
-    /**
-     * 默认缓存目录为tag
-     */
-    private static final String DEFAULT_CACHE_DIR = TAG;
+    private ArrayList<AsyncPost> mAsyncPosts;
+    private static ExecutorService executorService;
+    private ImageLoader imageLoader;
 
 
     private QVolley(Context context){
         this.context=context.getApplicationContext();
-        requestQueue= Volley.newRequestQueue(this.context);
+        mAsyncPosts=new ArrayList<>();
+        requestQueue=getRequestQueue();
+        executorService = Executors.newCachedThreadPool();
+        imageLoader = new ImageLoader(requestQueue, new BitmapCache());
     }
 
-    public QVolley getInstance( Context context) {
+    public static QVolley getInstance( Context context) {
         if(context==null){
             throw new IllegalArgumentException("Context can not be null! ");
         }
@@ -53,7 +52,23 @@ public class  QVolley {
     }
 
     public RequestQueue getRequestQueue(){
+        if(requestQueue==null){
+            synchronized (QVolley.class){
+                if(requestQueue==null){
+                    requestQueue= Volley.newRequestQueue(context);
+                }
+            }
+        }
         return requestQueue;
+    }
+
+    /**
+     * 获得imageloader实例
+     *
+     * @return imageloader实例
+     */
+    public ImageLoader getImageLoader() {
+        return imageLoader;
     }
 
 
@@ -64,65 +79,55 @@ public class  QVolley {
      */
     public <T> void addToRequestQueue(Request<T> request, String tag) {
         // 如果tag为空，则添加默认标记
-        request.setTag(null == tag || "".equals(tag) ? TAG : tag);
+        request.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
         // 添加到消息队列中
         getRequestQueue().add(request);
     }
 
     /**
-     * 通过tag取消队列中的请求
+     * 将请求添加到队列中
      *
-     * @param tag
-     *            消息标记
      */
-    public void cancelFromRequestQueue(String tag) {
-        getRequestQueue().cancelAll(null == tag ? TAG : tag);
+    public void addToAsyncQueue(AsyncPost post, String tag) {
+        // 如果tag为空，则添加默认标记
+        post.setTag(null == tag || "".equals(tag) ? TAG : tag);
+        // 添加到消息队列中
+        mAsyncPosts.add(post);
+        // 执行方法
+        post.executeOnExecutor(executorService, "");
     }
 
     /**
-     * 创建一个新的队列
+     * 加载图片
      *
-     * @param context
-     *            app全局上下文
-     * @param stack
-     *            网络类型
-     * @return 队列
+     * @param imgUrl 图片地址
+     * @param imageView 图片容器
+     * @param defaultImageResId 默认图id
+     * @param errorImageResId 图片加载失败的图片id
+     */
+    public void loadImage(String imgUrl, ImageView imageView,
+                          int defaultImageResId, int errorImageResId) {
+        imageLoader.get(imgUrl, ImageLoader.getImageListener(imageView,
+                defaultImageResId, errorImageResId));
+    }
 
-    public static RequestQueue newRequestQueue(Context context, HttpStack stack) {
-        File cacheDir = new File(context.getCacheDir(), "".equals(DEFAULT_CACHE_DIR) || null == DEFAULT_CACHE_DIR ? TAG
-                        : DEFAULT_CACHE_DIR);
 
-        String userAgent = "volley/0";
-        try {
-            String packageName = context.getPackageName();
-            PackageInfo info = context.getPackageManager().getPackageInfo(
-                    packageName, 0);
-            userAgent = packageName + "/" + info.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-        }
-
-        if (stack == null) {
-            if (Build.VERSION.SDK_INT >= 9) {
-                stack = new HurlStack();
-            } else {
-                // Prior to Gingerbread, HttpUrlConnection was unreliable.
-                // See:
-                // http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-                stack = new HttpClientStack(
-                        AndroidHttpClient.newInstance(userAgent));
+    /**
+     * 通过tag取消队列中的请求
+     *
+     * @param tag 消息标记
+     */
+    public void cancelFromRequestQueue(String tag) {
+        if(mAsyncPosts!=null&&mAsyncPosts.size()>0){
+            for (int i = 0; i < mAsyncPosts.size(); i++) {
+                if (tag.equals(mAsyncPosts.get(i).getTag())) {
+                    mAsyncPosts.get(i).cancel(true);
+                    mAsyncPosts.remove(i);
+                }
             }
         }
-
-        Network network = new BasicNetwork(stack);
-
-        RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir),
-                network);
-        queue.start();
-        return queue;
-    } */
-
-
-
+        getRequestQueue().cancelAll(null == tag ? TAG : tag);
+    }
     public void destroy(){
         requestQueue=null;
     }

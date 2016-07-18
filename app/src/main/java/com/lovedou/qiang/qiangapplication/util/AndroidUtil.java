@@ -71,12 +71,10 @@ public class AndroidUtil {
      *
      * 比较新版本是否比当前版本大
      *
-     * @param newVersion
-     * @param curVersion
-     * @return
-     * @permission boolean
-     * @exception
+     * @param newVersion 新版本号
+     * @param curVersion 旧版本号
      * @since 1.0.0
+     * @return  boolean
      */
     public static boolean compareVersion( String newVersion, String curVersion ) {
 
@@ -113,7 +111,6 @@ public class AndroidUtil {
      * @param context
      *            context对象
      * @return String 手机序列号
-     * @exception
      * @since 1.0.0
      */
     public static String getDeviceId( Context context ) {
@@ -184,7 +181,6 @@ public class AndroidUtil {
      * @param context
      *            context对象
      * @return boolean true 已联网 false 未联网
-     * @exception
      * @since 1.0.0
      */
     public static boolean isNetworkConnected( Context context ) {
@@ -209,7 +205,6 @@ public class AndroidUtil {
      * @param context
      *            context对象
      * @return String 类型+信息
-     * @exception
      * @since 1.0.0
      */
     public static String getNetworkTypeName( Context context ) {
@@ -250,7 +245,6 @@ public class AndroidUtil {
      * @param context
      *            context对象
      * @return String MAC地址
-     * @exception
      * @since 1.0.0
      */
     public static String getMAC( Context context ) {
@@ -272,7 +266,6 @@ public class AndroidUtil {
      * 获取手机厂商信息
      *
      * @return String 手机厂商信息
-     * @exception
      * @since 1.0.0
      */
     public static String getDeviceBrand() {
@@ -287,7 +280,6 @@ public class AndroidUtil {
      * 获取手机设备名
      *
      * @return String 手机设备名
-     * @exception
      * @since 1.0.0
      */
     public static String getDeviceName() {
@@ -302,7 +294,6 @@ public class AndroidUtil {
      * 获取设备型号信息
      *
      * @return String 设备型号信息
-     * @exception
      * @since 1.0.0
      */
     public static String getDeviceModel() {
@@ -317,7 +308,6 @@ public class AndroidUtil {
      * 获取系统版本
      *
      * @return String 系统版本
-     * @exception
      * @since 1.0.0
      */
     public static String getOsVersion() {
@@ -334,7 +324,6 @@ public class AndroidUtil {
      * @param context
      *            context对象
      * @return String 服务集标识（SSID）
-     * @exception
      * @since 1.0.0
      */
     public static String getSSID( Context context ) {
@@ -358,7 +347,6 @@ public class AndroidUtil {
      * @param context
      *            context对象
      * @return String sim序列号
-     * @exception
      * @since 1.0.0
      */
     public static String getSimSerialNumber( Context context ) {
@@ -532,7 +520,6 @@ public class AndroidUtil {
      * 获取存储根目录路径
      *
      * @return String 如果有sd卡，则返回sd卡的目录 如果没有sd卡，则返回存储目录
-     * @permission
      * @since 1.0.0
      */
     public static String getSDPath() {
@@ -554,7 +541,6 @@ public class AndroidUtil {
      * @param key
      *            待获取的meta-data的key
      * @return String meta-data的value值，若无该key值，则返回null
-     * @exception
      * @since 1.0.0
      */
     public static String getApplicationMetaData( Context context, String key ) {
@@ -650,10 +636,8 @@ public class AndroidUtil {
      *
      * 获取设备屏幕宽度
      *
-     * @param act
+     * @param act Activity
      * @return int
-     * @permission
-     * @exception
      * @since 1.0.0
      */
     public static final int getMobileWidth( Activity act ) {
@@ -670,8 +654,6 @@ public class AndroidUtil {
      *
      * @param act
      * @return int
-     * @permission
-     * @exception
      * @since 1.0.0
      */
     public static final int getMobileHeight( Activity act ) {
@@ -685,11 +667,9 @@ public class AndroidUtil {
     /**
      * isWifi(判断用户是否 在wifi 网络环境)
      *
-     * @param context
-     * @return
-     * @permission boolean
-     * @exception
+     * @param context 上下文
      * @since 1.1.0
+     * @return boolean
      */
     public static boolean isWifi( Context context ) {
 

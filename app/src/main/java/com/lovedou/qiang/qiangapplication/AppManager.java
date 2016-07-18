@@ -41,8 +41,6 @@ public class AppManager {
      * @param context
      *            context对象
      * @return AppManager AppManager单例
-     * @permission
-     * @exception
      * @since 1.0.0
      */
     public static AppManager getInstance( Context context ) {
@@ -65,10 +63,7 @@ public class AppManager {
      *
      * 应用初始化方法
      *
-     * @param appId
-     *            AppID void
-     * @permission
-     * @exception
+     * @param appId AppID void
      * @since 1.0.0
      */
     public void initApp( String appId ) {
@@ -84,8 +79,6 @@ public class AppManager {
      *            AppID
      * @param appListener
      *            应用程序监听器，用于退出后清除所有数据 void
-     * @permission
-     * @exception
      * @since 1.0.0
      */
     public void initApp( String appId, IAppListener appListener ) {
@@ -104,8 +97,6 @@ public class AppManager {
      *            应用程序监听器，用于退出后清除所有数据
      * @param isStartMonitor
      *            是否启用防劫持和切换后台超时退出的服务（默认启用） void
-     * @permission
-     * @exception
      * @since 1.0.0
      */
     public void initApp( String appId, IAppListener appListener, boolean isStartMonitor ) {
@@ -125,8 +116,6 @@ public class AppManager {
      *            是否启用防劫持和切换后台超时退出的服务（默认启用） void
      * @param isAutoCleanCache
      *            是否自动清除cache，默认为true，则每次启动和退出时都会自动删除cache
-     * @permission void
-     * @exception
      * @since 1.1.0
      */
     public void initApp( String appId, IAppListener appListener, boolean isStartMonitor, boolean isAutoCleanCache ) {
@@ -146,8 +135,6 @@ public class AppManager {
      * 获取AppID
      *
      * @return String AppID
-     * @permission
-     * @exception
      * @since 1.0.0
      */
     public String getAppId() {
@@ -159,8 +146,6 @@ public class AppManager {
      *
      * 退出App并终止进程，清除数据 void
      *
-     * @permission
-     * @exception
      * @since 1.0.0
      */
     public void exitApp() {

@@ -38,8 +38,6 @@ public class ZipUtil {
      * @return 解压后文件数组
      * @throws ZipException
      *             压缩文件有损坏或者解压缩失败抛出:1.找不到文件;2.文件路径异常;3.压缩文件不合法,可能被损坏.
-     * @permission File[]
-     * @exception
      * @since 1.1.0
      */
     public static File[] unzip(String zip, String dest, String passwd)
@@ -63,7 +61,6 @@ public class ZipUtil {
      * @return 解压后文件数组
      * @throws ZipException
      *             1.找不到文件;2.文件路径异常;3.文件损坏异常;
-     * @permission File[]
      * @since 1.1.0
      */
     public static File[] unzip(String zip, String passwd) throws ZipException {
@@ -92,8 +89,6 @@ public class ZipUtil {
      * @return 解压后文件数组
      * @throws ZipException
      *             压缩文件有损坏或者解压缩失败抛出
-     * @permission File[]
-     * @exception
      * @since 1.1.0
      */
     public static File[] unzip(File zipFile, String dest, String passwd)
@@ -146,8 +141,6 @@ public class ZipUtil {
      * @param passwd
      *            如果没有密码,则为null;
      * @throws ZipException
-     * @permission void
-     * @exception
      * @since 1.1.0
      */
     public static void extractSingleFile(String zipFilePath, String fileName,
@@ -175,8 +168,6 @@ public class ZipUtil {
      * @param passwd
      *            如果没有密码,则为null;
      * @throws ZipException
-     * @permission void
-     * @exception
      * @since 1.1.0
      */
     public static void extractSingleFile(File zipFile, String fileName,
@@ -211,8 +202,6 @@ public class ZipUtil {
      *            密码.如果没有密码则为null
      * @throws ZipException
      *             压缩文件路径不正确.
-     * @permission void
-     * @exception
      * @since 1.1.0
      */
     public static void extractSelectDir(String zipFilePath, String dir,
@@ -238,8 +227,6 @@ public class ZipUtil {
      *            密码.如果没有密码则为null
      * @throws ZipException
      *             压缩文件不合法.
-     * @permission void
-     * @exception
      * @since 1.1.0
      */
     public static void extractSelectDir(File zipFile, String dir, String dest,
@@ -281,8 +268,6 @@ public class ZipUtil {
      *            压缩使用的密码
      * @return 最终的压缩文件存放的绝对路径,如果为null则说明压缩失败.
      * @throws ZipException
-     * @permission String
-     * @exception
      * @since 1.1.0
      */
     public static String zip(String src, String dest, String passwd) throws ZipException {
@@ -362,8 +347,6 @@ public class ZipUtil {
      * @param destParam
      *            压缩目标路径
      * @return 正确的压缩文件存放路径
-     * @permission String
-     * @exception
      * @since 1.1.0
      */
     private static String buildDestinationZipFilePath(File srcFile,
@@ -421,8 +404,6 @@ public class ZipUtil {
      *
      * @param zip
      * @throws ZipException
-     * @permission void
-     * @exception
      * @since 1.1.0
      */
     private static void checkZipPath(String zip) throws ZipException {
@@ -439,8 +420,6 @@ public class ZipUtil {
      * @param passwd
      * @param zFile
      * @throws ZipException
-     * @permission void
-     * @exception
      * @since 1.1.0
      */
     private static void checkPasswd(String passwd, ZipFile zFile)

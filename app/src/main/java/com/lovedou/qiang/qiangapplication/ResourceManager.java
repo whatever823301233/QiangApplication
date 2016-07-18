@@ -144,7 +144,7 @@ public class ResourceManager {
 
     public int getStyleable( String name ) {
 
-        return ( ( Integer )getResourceId( name, "styleable" ) ).intValue();
+        return (int)getResourceId( name, "styleable" );
     }
 
 
@@ -160,10 +160,8 @@ public class ResourceManager {
      *
      * @param name
      * @param type
-     * @return
-     * @permission Object
-     * @exception
      * @since 1.0.0
+     * @return
      */
     private Object getResourceId( String name, String type ) {
 
@@ -257,10 +255,7 @@ public class ResourceManager {
      *
      * 根据Drawable名字获取Drawable
      *
-     * @param name
-     * @return
-     * @permission Drawable
-     * @exception
+     * @param id
      * @since 1.1.0
 
     public Drawable getDrawable( String name ) {
@@ -338,7 +333,7 @@ public class ResourceManager {
 
     /**
      *
-     * @param name
+     * @param
      * @return
 
     public Bitmap getBitmap( String name ) {

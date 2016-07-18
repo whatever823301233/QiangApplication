@@ -7,7 +7,6 @@ package com.lovedou.qiang.qiangapplication;
  */
 public interface IAppListener {
 
-
     /**
      *  app退出时，清除数据及状态使用
      */
