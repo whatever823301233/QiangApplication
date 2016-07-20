@@ -52,4 +52,14 @@
             android:src="@drawable/point"/>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_skip"
+        android:text="点击跳转"
+        android:layout_above="@+id/ll"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
 </RelativeLayout>

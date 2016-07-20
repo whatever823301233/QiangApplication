@@ -1,8 +1,10 @@
 package com.lovedou.qiang.qiangapplication.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -29,11 +31,15 @@ public class GuidePagerActivity extends ActivityBase {
     private ImageView[] points;
     //记录当前选中位置
     private int currentIndex;
+    private Button btnSkip;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getSupportActionBar()!=null){
+            getSupportActionBar().hide();
+        }
         setContentView(R.layout.activity_guide_pager);
         initView();
         initData();
@@ -49,6 +55,11 @@ public class GuidePagerActivity extends ActivityBase {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         //实例化ViewPager适配器
         vpAdapter = new GuideViewPagerAdapter(views);
+
+        btnSkip=(Button)findViewById(R.id.btn_skip);
+        if (btnSkip != null) {
+            btnSkip.setOnClickListener(skipListener);
+        }
     }
 
     /**
@@ -74,6 +85,8 @@ public class GuidePagerActivity extends ActivityBase {
 
         //初始化底部小点
         initPoint();
+        //设置跳转按钮是否可见
+        setButtonVisible();
     }
 
     /**
@@ -103,6 +116,14 @@ public class GuidePagerActivity extends ActivityBase {
         //设置为白色，即选中状态
         points[currentIndex].setEnabled(false);
     }
+
+
+    private View.OnClickListener skipListener=new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            startActivity(new Intent(getActivity(),MainActivity.class));
+        }
+    };
 
 
     private View.OnClickListener onClickListener=new View.OnClickListener() {
@@ -152,14 +173,24 @@ public class GuidePagerActivity extends ActivityBase {
     /**
      * 设置当前的小点的位置
      */
-    private void setCurDot(int positon){
-        if (positon < 0 || positon > pics.length - 1 || currentIndex == positon) {
+    private void setCurDot(int position){
+        if (position < 0 || position > pics.length - 1 || currentIndex == position) {
             return;
         }
-        points[positon].setEnabled(false);
+        points[position].setEnabled(false);
         points[currentIndex].setEnabled(true);
 
-        currentIndex = positon;
+        currentIndex = position;
+        setButtonVisible();
     }
+
+    private void setButtonVisible(){
+        if(currentIndex==points.length-1){
+            btnSkip.setVisibility(View.VISIBLE);
+        }else{
+            btnSkip.setVisibility(View.GONE);
+        }
+    }
+
 
 }
