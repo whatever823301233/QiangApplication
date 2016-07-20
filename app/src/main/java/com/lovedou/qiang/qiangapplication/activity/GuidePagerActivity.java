@@ -9,20 +9,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.lovedou.qiang.qiangapplication.R;
-import com.lovedou.qiang.qiangapplication.adapter.GuideViewPagerAdapter;
+import com.lovedou.qiang.qiangapplication.adapter.ViewPagerAdapter;
 
 import java.util.ArrayList;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * Created by Qiang on 2016/7/20.
+ * 引导页activity
  */
 public class GuidePagerActivity extends ActivityBase {
 
     //定义ViewPager对象
     private ViewPager viewPager;
     //定义ViewPager适配器
-    private GuideViewPagerAdapter vpAdapter;
+    private ViewPagerAdapter vpAdapter;
     //定义一个ArrayList来存放View
     private ArrayList<View> views;
     //引导图片资源
@@ -54,7 +54,7 @@ public class GuidePagerActivity extends ActivityBase {
         //实例化ViewPager
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         //实例化ViewPager适配器
-        vpAdapter = new GuideViewPagerAdapter(views);
+        vpAdapter = new ViewPagerAdapter(views);
 
         btnSkip=(Button)findViewById(R.id.btn_skip);
         if (btnSkip != null) {
