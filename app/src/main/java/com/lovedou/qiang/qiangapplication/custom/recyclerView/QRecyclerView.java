@@ -1,4 +1,4 @@
-package com.lovedou.qiang.qiangapplication.custom;
+package com.lovedou.qiang.qiangapplication.custom.recyclerView;
 
 import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;

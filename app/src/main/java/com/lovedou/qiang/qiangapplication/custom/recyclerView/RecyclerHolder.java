@@ -1,4 +1,4 @@
-package com.lovedou.qiang.qiangapplication.custom;
+package com.lovedou.qiang.qiangapplication.custom.recyclerView;
 
 import android.content.Context;
 import android.graphics.Bitmap;
