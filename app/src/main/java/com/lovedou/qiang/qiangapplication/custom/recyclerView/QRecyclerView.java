@@ -1,324 +1,365 @@
 package com.lovedou.qiang.qiangapplication.custom.recyclerView;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.lovedou.qiang.qiangapplication.R;
 
+import java.lang.ref.WeakReference;
+
 /**
- * Created by Qiang on 2016/7/20.
- *
+ * Created by Qiang on 2016/7/21.
  */
-public class QRecyclerView extends RecyclerView{
+public class QRecyclerView extends LinearLayout {
 
-    /**
-     * 加载状态-正常状态
-     */
-    private static final int LOAD_STATE_NORMAL = 0x9527;
-    /**
-     * 加载状态-加载中
-     */
-    private static final int LOAD_STATE_LOADING = 0x9528;
-    /**
-     * 加载状态-加载失败
-     */
-    private static final int LOAD_STATE_FAIL = 0x9529;
-    /**
-     * 加载状态-无更多数据
-     */
-    private static final int LOAD_STATE_NO_MORE = 0x9530;
-    /**
-     * 加载状态标志位
-     */
-    private int loadState = LOAD_STATE_NORMAL;
-    /**
-     * layout manager状态-线性布局
-     */
-    private static final int LAYOUT_STATE_LINEAR = 0x9531;
-    /**
-     * layout manager状态-表格布局
-     */
-    private static final int LAYOUT_STATE_GRID = 0x9532;
-    /**
-     * layout manager状态-瀑布流布局
-     */
-    private static final int LAYOUT_STATE_STAGGERED = 0x9533;
-    /**
-     * layout manager标志位
-     */
-    private int layout_state = LAYOUT_STATE_LINEAR;
-    /**
-     * 是否向下滚动
-     */
-    private boolean isScrollDown;
-    /**
-     * 加载监听
-     */
-    private OnLoadListener onLoadListener;
-    /**
-     * item点击事件
-     */
-    private AdapterView.OnItemClickListener onItemClickListener;
-
-    /**
-     * 外部包裹的适配器
-     */
-    private MyAdapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private PullLoadMoreListener mPullLoadMoreListener;
+    private boolean hasMore = true;
+    private boolean isRefresh = false;
+    private boolean isLoadMore = false;
+    private boolean pullRefreshEnable = true;
+    private boolean pushRefreshEnable = true;
+    private View mFooterView;
+    private FrameLayout mEmptyViewContainer;
+    private Context mContext;
+    private TextView loadMoreText;
+    private LinearLayout loadMoreLayout;
+    private QRecyclerView.AdapterDataObserver mEmptyDataObserver;
 
     public QRecyclerView(Context context) {
-        this(context, null);
+        super(context);
+        initView(context);
     }
 
     public QRecyclerView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        initView(context);
     }
 
-    public QRecyclerView(Context context, AttributeSet attrs, int arg2) {
-        super(context, attrs, arg2);
+    private void initView(Context context) {
+        mContext = context;
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_q_recycler_view, null);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_green_dark, android.R.color.holo_blue_dark, android.R.color.holo_orange_dark);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayoutOnRefresh(this));
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        mRecyclerView.setVerticalScrollBarEnabled(true);
+
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.addOnScrollListener(new RecyclerViewOnScroll(this));
+
+        mRecyclerView.setOnTouchListener(new onTouchRecyclerView());
+
+        mFooterView = view.findViewById(R.id.footerView);
+        mEmptyViewContainer = (FrameLayout) view.findViewById(R.id.emptyView);
+
+        loadMoreLayout = (LinearLayout) view.findViewById(R.id.loadMoreLayout);
+        loadMoreText = (TextView) view.findViewById(R.id.loadMoreText);
+
+        mFooterView.setVisibility(View.GONE);
+        mEmptyViewContainer.setVisibility(View.GONE);
+
+        this.addView(view);
+
+    }
+
+    /**
+     * LinearLayoutManager
+     */
+    public void setLinearLayout() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+    }
+
+    /**
+     * GridLayoutManager
+     */
+
+    public void setGridLayout(int spanCount) {
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, spanCount);
+        gridLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
     }
 
 
     /**
-     * 设置加载更多监听-必须在setadapter之前调用
-     *
-     * @param onLoadListener
-     *            加载更多监听
+     * StaggeredGridLayoutManager
      */
-    public void setOnLoadListener(OnLoadListener onLoadListener) {
-        this.onLoadListener = onLoadListener;
+
+    public void setStaggeredGridLayout(int spanCount) {
+        StaggeredGridLayoutManager staggeredGridLayoutManager =
+                new StaggeredGridLayoutManager(spanCount, LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
     }
 
-    /**
-     * 设置点击事件
-     *
-     * @param onItemClickListener
-     *            点击事件回调
-     */
-    public void setOnItemClickListener(AdapterView.OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+    public RecyclerView.LayoutManager getLayoutManager() {
+        return mRecyclerView.getLayoutManager();
     }
 
-    /**
-     * 设置状态为正在加载
-     */
-    public void setLoading() {
-        this.loadState = LOAD_STATE_LOADING;
-        mAdapter.modifyState();
+    public RecyclerView getRecyclerView() {
+        return mRecyclerView;
     }
 
-    /**
-     * 设置状态为加载失败
-     */
-    public void setLoadFail() {
-        this.loadState = LOAD_STATE_FAIL;
-        mAdapter.modifyState();
+    public void scrollToTop() {
+        mRecyclerView.scrollToPosition(0);
+    }
+    public void scrollToPosition(int position) {
+        mRecyclerView.scrollToPosition(position);
     }
 
-    /**
-     * 设置状态为无更多数据
-     */
-    public void setLoadFinish() {
-        this.loadState = LOAD_STATE_NO_MORE;
-        mAdapter.modifyState();
-    }
 
-    /**
-     * 设置状态为加载完成
-     */
-    public void setLoadComplete() {
-        this.loadState = LOAD_STATE_NORMAL;
-        mAdapter.modifyState();
-    }
-
-    @Override
-    public void setAdapter(Adapter adapter) {
-        mAdapter = new MyAdapter(adapter);
-        super.setAdapter(mAdapter);
-    }
-
-    @Override
-    public void setLayoutManager(LayoutManager manager) {
-        super.setLayoutManager(manager);
-        if (manager instanceof GridLayoutManager) {
-            layout_state = LAYOUT_STATE_GRID;
-        } else if (manager instanceof LinearLayoutManager) {
-            layout_state = LAYOUT_STATE_LINEAR;
-        } else if (manager instanceof StaggeredGridLayoutManager) {
-            layout_state = LAYOUT_STATE_STAGGERED;
+    public void setAdapter(RecyclerView.Adapter adapter) {
+        if (adapter != null) {
+            mRecyclerView.setAdapter(adapter);
+            if (mEmptyDataObserver == null) {
+                mEmptyDataObserver = new QRecyclerView.AdapterDataObserver(this);
+            }
+            adapter.registerAdapterDataObserver(mEmptyDataObserver);
         }
     }
 
-    @Override
-    public void onScrolled(int dx, int dy) {
-        super.onScrolled(dx, dy);
-        this.isScrollDown = dy > 0;
+    public void showEmptyView() {
+
+        RecyclerView.Adapter<?> adapter = mRecyclerView.getAdapter();
+        if (adapter != null && mEmptyViewContainer.getChildCount() != 0) {
+            if (adapter.getItemCount() == 0) {
+                mFooterView.setVisibility(View.GONE);
+                mEmptyViewContainer.setVisibility(VISIBLE);
+            } else {
+                mEmptyViewContainer.setVisibility(GONE);
+            }
+        }
+
     }
 
+    public void setPullRefreshEnable(boolean enable) {
+        pullRefreshEnable = enable;
+        setSwipeRefreshEnable(enable);
+    }
+
+    public boolean getPullRefreshEnable() {
+        return pullRefreshEnable;
+    }
+
+    public void setSwipeRefreshEnable(boolean enable) {
+        mSwipeRefreshLayout.setEnabled(enable);
+    }
+
+    public boolean getSwipeRefreshEnable() {
+        return mSwipeRefreshLayout.isEnabled();
+    }
+
+
+    public void setColorSchemeResources(int... colorResIds) {
+        mSwipeRefreshLayout.setColorSchemeResources(colorResIds);
+
+    }
+
+    public SwipeRefreshLayout getSwipeRefreshLayout() {
+        return mSwipeRefreshLayout;
+    }
+
+    public void setRefreshing(final boolean isRefreshing) {
+        mSwipeRefreshLayout.post(new Runnable() {
+
+            @Override
+            public void run() {
+                if (pullRefreshEnable)
+                    mSwipeRefreshLayout.setRefreshing(isRefreshing);
+            }
+        });
+
+    }
+
+    /**
+     * When view detached from window , unregister adapter data observer, avoid momery leak.
+     */
     @Override
-    public void onScrollStateChanged(int state) {
-        super.onScrollStateChanged(state);
-        if (RecyclerView.SCROLL_STATE_IDLE == state
-                && isScrollDown
-                && null != onLoadListener
-                && loadState == LOAD_STATE_NORMAL) {
-            boolean flag = true;
-            if (layout_state == LAYOUT_STATE_LINEAR) {// 线性布局
-                int lastPosition = ((LinearLayoutManager) getLayoutManager()).findLastVisibleItemPosition();
-                flag = lastPosition == (mAdapter.getItemCount() - 1);
-            } else if (layout_state == LAYOUT_STATE_GRID) {// 表格布局
-                int lastPosition = ((GridLayoutManager) getLayoutManager()).findLastVisibleItemPosition();
-                flag = lastPosition == (mAdapter.getItemCount() - 1);
-            } else if (layout_state == LAYOUT_STATE_STAGGERED) {// 交错布局
-                int[] lastPositions = ((StaggeredGridLayoutManager) getLayoutManager())
-                        .findLastVisibleItemPositions(null);
-                int footer = mAdapter.getItemCount() - 1;
-                for (int lastPosition : lastPositions) {
-                    if (lastPosition != footer) {
-                        flag = false;
-                        break;
-                    }
-                }
-            }
-            loadState = flag ? LOAD_STATE_LOADING : LOAD_STATE_NORMAL;
-            if (flag) {// 如果标志状态为加载中，则回调方法
-                onLoadListener.loadMore();
-                mAdapter.modifyState();
-            }
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        RecyclerView.Adapter<?> adapter = mRecyclerView.getAdapter();
+        if (adapter != null) {
+            adapter.unregisterAdapterDataObserver(mEmptyDataObserver);
         }
     }
 
+    /**
+     * Solve IndexOutOfBoundsException exception
+     */
+    public class onTouchRecyclerView implements OnTouchListener {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            return isRefresh || isLoadMore;
+        }
+    }
 
-    private class MyAdapter extends Adapter{
+    /**
+     * This Observer receives adapter data change.
+     * When adapter's item count greater than 0 and empty view has been set,then show the empty view.
+     * when adapter's item count is 0 ,then empty view hide.
+     */
+    private static class AdapterDataObserver extends android.support.v7.widget.RecyclerView.AdapterDataObserver {
 
-        private static final int ITEM_FOOTER = 0x9527;
-        private RecyclerHolder recyclerHolder;
-        private Adapter adapter;
+        private WeakReference<QRecyclerView> recyclerViewWeakReference;
 
-        public MyAdapter(Adapter adapter) {
-            this.adapter = adapter;
+        public AdapterDataObserver(@NonNull QRecyclerView recyclerView){
+            recyclerViewWeakReference=new WeakReference<>(recyclerView);
+        }
+
+        private boolean isWeakNull(){
+            return recyclerViewWeakReference==null||recyclerViewWeakReference.get()==null;
         }
 
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if (viewType == ITEM_FOOTER) {
-                LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-                View view = layoutInflater.inflate(R.layout.load_footer, parent, false);
-                recyclerHolder = new RecyclerHolder(view, getContext());
-                return recyclerHolder;
-            }
-            return adapter.onCreateViewHolder(parent, viewType);
+        public void onChanged() {
+            if(isWeakNull()){return;}
+            recyclerViewWeakReference.get().showEmptyView();
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder,final int position) {
-            if (getItemViewType(position) == ITEM_FOOTER) {
-                if (layout_state == LAYOUT_STATE_STAGGERED) {
-                    StaggeredGridLayoutManager.LayoutParams layoutParams =
-                            (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
-                    layoutParams.setFullSpan(true);
-                    holder.itemView.setLayoutParams(layoutParams);
-                } else if (layout_state == LAYOUT_STATE_GRID) {
-                    final GridLayoutManager gridLayoutManager = ((GridLayoutManager) getLayoutManager());
-                    final GridLayoutManager.SpanSizeLookup spanSizeLookup = gridLayoutManager.getSpanSizeLookup();
-                    gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            super.onItemRangeInserted(positionStart, itemCount);
+            if(isWeakNull()){return;}
+            recyclerViewWeakReference.get().showEmptyView();
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            super.onItemRangeRemoved(positionStart, itemCount);
+            if(isWeakNull()){return;}
+            recyclerViewWeakReference.get().showEmptyView();
+        }
+    }
+
+    public boolean getPushRefreshEnable() {
+        return pushRefreshEnable;
+    }
+
+    public void setPushRefreshEnable(boolean pushRefreshEnable) {
+        this.pushRefreshEnable = pushRefreshEnable;
+    }
+
+    public LinearLayout getFooterViewLayout() {
+        return loadMoreLayout;
+    }
+
+    public void setFooterViewBackgroundColor(int color) {
+        loadMoreLayout.setBackgroundColor(ContextCompat.getColor(mContext, color));
+    }
+
+    public void setFooterViewText(CharSequence text) {
+        loadMoreText.setText(text);
+    }
+
+    public void setFooterViewText(int resid) {
+        loadMoreText.setText(resid);
+    }
+
+    public void setFooterViewTextColor(int color) {
+        loadMoreText.setTextColor(ContextCompat.getColor(mContext, color));
+    }
+
+    public void setEmptyView(View emptyView) {
+        mEmptyViewContainer.removeAllViews();
+        mEmptyViewContainer.addView(emptyView);
+    }
+
+    public void refresh() {
+        if (mPullLoadMoreListener != null) {
+            mPullLoadMoreListener.onRefresh();
+        }
+    }
+
+    public void loadMore() {
+        if (mPullLoadMoreListener != null && hasMore) {
+            mFooterView.animate()
+                    .translationY(0)
+                    .setDuration(300)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .setListener(new AnimatorListenerAdapter() {
                         @Override
-                        public int getSpanSize(int position) {
-                            if (null != onLoadListener && position == mAdapter.getItemCount() - 1) {
-                                return gridLayoutManager.getSpanCount();
-                            } else if (null != spanSizeLookup) {
-                                return spanSizeLookup.getSpanSize(position);
-                            }
-                            return 1;
+                        public void onAnimationStart(Animator animation) {
+                            mFooterView.setVisibility(View.VISIBLE);
                         }
-                    });
-                }
-                return;
-            }
-            adapter.onBindViewHolder(holder, position);
-            holder.itemView.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != onItemClickListener) {
-                        onItemClickListener.onItemClick(null, v, position, 0);
-                    }
-                }
-            });
-        }
+                    })
+                    .start();
+            invalidate();
+            mPullLoadMoreListener.onLoadMore();
 
-        @Override
-        public int getItemCount() {
-            if (null != onLoadListener) {
-                return adapter.getItemCount() + 1;
-            }
-            return adapter.getItemCount();
         }
+    }
 
-        /**
-         * 修改足部状态
-         */
-        public void modifyState() {
-            if (null != recyclerHolder) {
-                switch (loadState) {
-                    case LOAD_STATE_FAIL:// 加载失败
-                        recyclerHolder.setText(R.id.textview_load_footer, "加载失败，请点击重试");
-                        recyclerHolder.getView(R.id.progressbar_load_footer).setVisibility(View.GONE);
-                        recyclerHolder.itemView.setClickable(true);
-                        recyclerHolder.itemView.setOnClickListener(new OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (loadState == LOAD_STATE_FAIL) {
-                                    onLoadListener.retryClick();
-                                    loadState = LOAD_STATE_LOADING;
-                                    modifyState();
-                                }
-                            }
-                        });
-                        break;
-                    case LOAD_STATE_LOADING:// 加载中
-                        recyclerHolder.setText(R.id.textview_load_footer, "正在加载中");
-                        recyclerHolder.getView(R.id.progressbar_load_footer).setVisibility(View.VISIBLE);
-                        break;
-                    case LOAD_STATE_NO_MORE:// 无更多数据
-                        recyclerHolder.setText(R.id.textview_load_footer, "已经到底了");
-                        recyclerHolder.getView(R.id.progressbar_load_footer).setVisibility(View.GONE);
-                        break;
-                    case LOAD_STATE_NORMAL:// 正常状态
-                        recyclerHolder.setText(R.id.textview_load_footer, "滑动加载更多");
-                        recyclerHolder.getView(R.id.progressbar_load_footer).setVisibility(View.GONE);
-                        break;
-                }
-            }
-        }
 
+    public void setPullLoadMoreCompleted() {
+        isRefresh = false;
+        setRefreshing(false);
+
+        isLoadMore = false;
+        mFooterView.animate()
+                .translationY(mFooterView.getHeight())
+                .setDuration(300)
+                .setInterpolator(new AccelerateDecelerateInterpolator())
+                .start();
 
     }
 
 
-
-    /**
-     * 加载更多回调
-     *
-     * @author wuxubaiyang
-     *
-     */
-    public static interface OnLoadListener {
-        /**
-         * 加载更多
-         */
-        void loadMore();
-
-        /**
-         * 点击重试
-         */
-        void retryClick();
+    public void setOnPullLoadMoreListener(PullLoadMoreListener listener) {
+        mPullLoadMoreListener = listener;
     }
+
+
+    public boolean isLoadMore() {
+        return isLoadMore;
+    }
+
+    public void setIsLoadMore(boolean isLoadMore) {
+        this.isLoadMore = isLoadMore;
+    }
+
+    public boolean isRefresh() {
+        return isRefresh;
+    }
+
+    public void setIsRefresh(boolean isRefresh) {
+        this.isRefresh = isRefresh;
+    }
+
+    public boolean isHasMore() {
+        return hasMore;
+    }
+
+    public void setHasMore(boolean hasMore) {
+        this.hasMore = hasMore;
+    }
+
+    public interface PullLoadMoreListener {
+        void onRefresh();
+
+        void onLoadMore();
+    }
+
 
 }

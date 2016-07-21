@@ -5,4 +5,8 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="black_overlay">#66000000</color>
+
+    <color name="color_item_press">#FF4081</color>
+
+    <color name="color_item_normal">#FFFFFF</color>
 </resources>

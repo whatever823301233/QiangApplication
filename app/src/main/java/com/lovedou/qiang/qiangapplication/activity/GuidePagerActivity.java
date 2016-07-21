@@ -37,9 +37,6 @@ public class GuidePagerActivity extends ActivityBase {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getSupportActionBar()!=null){
-            getSupportActionBar().hide();
-        }
         setContentView(R.layout.activity_guide_pager);
         initView();
         initData();
