@@ -7,10 +7,13 @@ import android.content.ContentValues;
  */
 public class User extends BaseBean{
 
+    public static final String TABLE_NAME="user";
+
     public static final String INTENT_USER="intent_user";
 
-    private static final String  USERNAME="username";
-    private static final String  PASSWORD="password";
+    public static final String  USERNAME="username";
+    public static final String  PASSWORD="password";
+    public static final String  OTHER="other";
 
 
     private String username ;
@@ -38,7 +41,7 @@ public class User extends BaseBean{
 
 
     @Override
-    ContentValues toContentValues() {
+    public ContentValues toContentValues() {
         ContentValues cv=new ContentValues();
         cv.put(USERNAME,username);
         cv.put(PASSWORD,password);
@@ -53,4 +56,12 @@ public class User extends BaseBean{
         return user;
     }
 
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

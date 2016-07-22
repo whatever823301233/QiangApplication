@@ -27,6 +27,7 @@ public abstract class TableInfo {
     public String getTableName() {
         return mTableName;
     }
+
     public ArrayList<String> getCreateSql() {
         return mCreateSql;
     }

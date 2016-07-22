@@ -18,11 +18,13 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "qiang.db";
     private static final int DATABASE_VERSION = 1;
 
-    public static ArrayList<TableInfo> sTableInfos = new ArrayList<>();
+    private ArrayList<TableInfo> sTableInfo;
+
 
     public DBHelper( Context context ) {
-
         super( context, DATABASE_NAME, null, DATABASE_VERSION );
+        sTableInfo = new ArrayList<>();
+        sTableInfo.add(new UserInfo());
     }
 
 
@@ -30,7 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         LogUtil.d( TAG, "onCreate" );
         try{
-            for( TableInfo info : sTableInfos ) {
+            for( TableInfo info : sTableInfo) {
                 for( String sql : info.getCreateSql() ) {
                     db.execSQL( sql );
                 }
@@ -44,7 +46,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         LogUtil.d( TAG, "onUpgrade" );
-        for( TableInfo info : sTableInfos ) {
+        for( TableInfo info : sTableInfo) {
             info.upgrade( db, oldVersion, newVersion );
         }
     }
