@@ -1,12 +1,15 @@
 package com.lovedou.qiang.qiangapplication.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.lovedou.qiang.qiangapplication.bean.User;
+import com.lovedou.qiang.qiangapplication.util.LogUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -101,50 +104,97 @@ public class DBHandler {
         }
     }
 
-    public void addUser(User user){
-        if(user==null){return;}
-        getDB().beginTransaction();
-        long result=getDB().insert(User.TABLE_NAME,null,user.toContentValues());
-        //getDB().execSQL("insert into user values(null,?,?)",new Object[]{user.getUsername(),user.getPassword()});
-        getDB().close();
-    }
 
-    public void addUserList(List<User> userList){
-        if(userList==null){return;}
-        getDB().beginTransaction();
-        for(User user:userList){
-            getDB().insert(User.TABLE_NAME,null,user.toContentValues());
-            //getDB().execSQL("insert into user values(null,?,?)",new Object[]{user.getUsername(),user.getPassword()});
+
+    /**
+     * add users
+     * @param users
+     */
+    public void addUsers(List<User> users) {
+        getDB().beginTransaction();  //开始事务
+        try {
+            for (User user : users) {
+                getDB().execSQL("INSERT INTO "+User.TABLE_NAME+" VALUES(null, ?, ?)", new Object[]{user.getUsername(), user.getPassword()});
+            }
+            getDB().setTransactionSuccessful();  //设置事务成功完成
+        } catch (Exception e){
+            LogUtil.e("",e);
+        }finally {
+            getDB().endTransaction();    //结束事务
         }
-        getDB().close();
     }
 
-    public void deleteUser(User user){
-        getDB().beginTransaction();
-        //getDB().delete(User.TABLE_NAME,User.USERNAME,new String[]{user.getUsername()});
-        getDB().execSQL("delete from "+User.TABLE_NAME+" where "
-                + User.USERNAME+"="+user.getUsername()
-                +" and "
-                + User.PASSWORD+"="+user.getPassword());
-        getDB().close();
+    /**
+     * update person's age
+     * @param user
+     */
+    public void updatePassword(User user) {
+        ContentValues cv = new ContentValues();
+        cv.put("age", user.getPassword());
+        getDB().update(User.TABLE_NAME, cv, User.PASSWORD+" = ?", new String[]{user.getPassword()});
     }
 
-    public User searchUser(String userName){
-        getDB().beginTransaction();
-        Cursor cursor=getDB().query(User.TABLE_NAME,null,User.USERNAME,new String[]{userName},null,null,null);
-        getDB().close();
-        User mUser=null;
-        while (cursor!=null&&cursor.moveToNext()){
-            mUser=new User();
-            mUser.setUsername(cursor.getString(cursor.getColumnIndex(User.USERNAME)));
-            mUser.setUsername(cursor.getString(cursor.getColumnIndex(User.PASSWORD)));
-            break;
+    /**
+     * delete old user
+     * @param userName
+     */
+    public void deleteOldUser(String userName) {
+        getDB().delete(User.TABLE_NAME, User.USERNAME+"= ?", new String[]{userName});
+    }
+
+    /**
+     * query all users, return list
+     * @return ArrayList<User>
+     */
+    public ArrayList<User> query() {
+        ArrayList<User> persons = new ArrayList<>();
+        Cursor c = queryTheCursor();
+        while (c.moveToNext()) {
+            User person = new User();
+            person.set_id(c.getInt(c.getColumnIndex(User.USER_ID)));
+            person.setUsername(c.getString(c.getColumnIndex(User.USERNAME)));
+            person.setPassword(c.getString(c.getColumnIndex(User.PASSWORD)));
+            persons.add(person);
         }
-        if (cursor != null) {
-            cursor.close();
-        }
-        return mUser;
+        c.close();
+        return persons;
     }
 
+
+    public User queryUser(String userName){
+        User person =null;
+        Cursor c=queryUserByName(userName);
+        if(c.moveToNext()){
+            person = new User();
+            person.set_id(c.getInt(c.getColumnIndex(User.USER_ID)));
+            person.setUsername(c.getString(c.getColumnIndex(User.USERNAME)));
+            person.setPassword(c.getString(c.getColumnIndex(User.PASSWORD)));
+        }
+        return person;
+    }
+
+    /**
+     * query all persons, return cursor
+     * @return  Cursor
+     */
+    public Cursor queryTheCursor() {
+        return getDB().rawQuery("SELECT * FROM "+User.TABLE_NAME, null);
+    }
+
+    /**
+     * query all persons, return cursor
+     * @return  Cursor
+     */
+    public Cursor queryUserByName(String name) {
+        return getDB().rawQuery("SELECT * FROM "+User.TABLE_NAME +" WHERE "+User.USERNAME+" like ?",new String[]{name});
+    }
+
+
+    /**
+     * close database
+     */
+    public void closeDB() {
+        getDB().close();
+    }
 
 }

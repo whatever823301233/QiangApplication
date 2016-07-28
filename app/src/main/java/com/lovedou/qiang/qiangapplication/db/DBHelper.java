@@ -18,12 +18,12 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "qiang.db";
     private static final int DATABASE_VERSION = 1;
 
-    private ArrayList<TableInfo> sTableInfo;
+    private ArrayList<TableInfo> sTableInfo = new ArrayList<>();
 
 
     public DBHelper( Context context ) {
         super( context, DATABASE_NAME, null, DATABASE_VERSION );
-        sTableInfo = new ArrayList<>();
+
         sTableInfo.add(new UserInfo());
     }
 
