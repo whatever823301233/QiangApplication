@@ -3,6 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".activity.MainActivity">
+
+
+    <com.qiang.qiangapplication.custom.NetImageView
+        android:id="@+id/netImageView"
+        android:layout_width="160dp"
+        android:layout_height="240dp"/>
+    <com.qiang.qiangapplication.custom.RoundImageView
+        android:id="@+id/roundImageView"
+        android:layout_width="160dp"
+        android:layout_height="240dp"/>
+
+
+    <Button
+        android:id="@+id/button"
+        android:layout_gravity="end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout >
